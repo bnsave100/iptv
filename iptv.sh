@@ -3788,9 +3788,9 @@ GetDefault()
         d_anti_leech_yn=${d_anti_leech_yn:-no}
         if [ "$d_anti_leech_yn" == "no" ] 
         then
-            d_anti_leech="N"
+            d_anti_leech="否"
         else
-            d_anti_leech="Y"
+            d_anti_leech="是"
         fi
         d_anti_leech_restart_nums=${d_anti_leech_restart_nums:-0}
         d_anti_leech_restart_flv_changes_yn=${d_anti_leech_restart_flv_changes_yn:-no}
@@ -4670,10 +4670,10 @@ SetStreamLink()
     fi
     if [ -n "${chnl_stream_links:-}" ] && [[ $chnl_stream_links == *" "* ]]
     then
-        Println "是否只是调整频道 ${green}[ $chnl_channel_name ]${normal} 直播源顺序? [y/N]"
-        read -p "(默认: N): " stream_links_sort_yn
-        stream_links_sort_yn=${stream_links_sort_yn:-N}
-        if [[ $stream_links_sort_yn == [Yy] ]] 
+        echo
+        yn_options=( '否' '是' )
+        inquirer list_input "是否只是调整频道 ${green}[ $chnl_channel_name ]${normal} 直播源顺序" yn_options stream_links_sort_yn
+        if [[ $stream_links_sort_yn == "是" ]] 
         then
             IFS=" " read -ra stream_links_input <<< "$chnl_stream_links"
             stream_links_count=${#stream_links_input[@]}
@@ -4905,15 +4905,15 @@ SetStreamLink()
     then
         if [[ ! -x $(command -v openssl) ]] 
         then
-            Println "是否安装 openssl ? [Y/n]"
-            read -p "(默认: Y): " openssl_install_yn
-            openssl_install_yn=${openssl_install_yn:-Y}
-            if [[ $openssl_install_yn == [Yy] ]]
+            echo
+            yn_options=( '是' '否' )
+            inquirer list_input "是否安装 openssl" yn_options openssl_install_yn
+            if [[ $openssl_install_yn == "否" ]]
             then
-                InstallOpenssl
-            else
-                Println "已取消\n..." && exit 1
+                Println "已取消\n..."
+                exit 1
             fi
+            InstallOpenssl
         fi
         Println "$info 解析 4gtv 链接 ..."
         hinet_4gtv=(
@@ -4984,15 +4984,15 @@ SetStreamLink()
     then
         if [[ ! -x $(command -v openssl) ]] 
         then
-            Println "是否安装 openssl ? [Y/n]"
-            read -p "(默认: Y): " openssl_install_yn
-            openssl_install_yn=${openssl_install_yn:-Y}
-            if [[ $openssl_install_yn == [Yy] ]]
+            echo
+            yn_options=( '是' '否' )
+            inquirer list_input "是否安装 openssl" yn_options openssl_install_yn
+            if [[ $openssl_install_yn == "否" ]]
             then
-                InstallOpenssl
-            else
-                Println "已取消\n..." && exit 1
+                Println "已取消\n..."
+                exit 1
             fi
+            InstallOpenssl
         fi
         Println "$info 解析 4gtv 链接 ..."
         xc=1
@@ -6243,16 +6243,16 @@ EditOutputDirName()
 {
     if [ "$chnl_status" == "on" ]
     then
-        Println "$error 检测到频道正在运行, 是否现在关闭？[y/N]"
-        read -p "(默认: N): " stop_channel_yn
-        stop_channel_yn=${stop_channel_yn:-n}
-        if [[ $stop_channel_yn == [Yy] ]]
+        echo
+        yn_options=( '否' '是' )
+        inquirer list_input "检测到频道正在运行, 是否现在关闭" yn_options stop_channel_yn
+        if [[ $stop_channel_yn == "否" ]]
         then
-            StopChannel
-            echo && echo
-        else
-            Println "已取消...\n" && exit 1
+            Println "已取消\n..."
+            exit 1
         fi
+        StopChannel
+        echo && echo
     fi
     SetOutputDirName
     JQ update "$CHANNELS_FILE" '(.channels[]|select(.pid=='"$chnl_pid"')|.output_dir_name)="'"$output_dir_name"'"'
@@ -6418,29 +6418,29 @@ EditChannelAll()
     if [ "$chnl_flv_status" == "on" ] 
     then
         kind="flv"
-        Println "$error 检测到频道正在运行, 是否现在关闭？[y/N]"
-        read -p "(默认: N): " stop_channel_yn
-        stop_channel_yn=${stop_channel_yn:-n}
-        if [[ $stop_channel_yn == [Yy] ]]
+        echo
+        yn_options=( '否' '是' )
+        inquirer list_input "检测到频道正在运行, 是否现在关闭" yn_options stop_channel_yn
+        if [[ $stop_channel_yn == "否" ]]
         then
-            StopChannel
-            echo && echo
-        else
-            Println "已取消...\n" && exit 1
+            Println "已取消\n..."
+            exit 1
         fi
+        StopChannel
+        echo && echo
     elif [ "$chnl_status" == "on" ]
     then
         kind=""
-        Println "$error 检测到频道正在运行, 是否现在关闭？[y/N]"
-        read -p "(默认: N): " stop_channel_yn
-        stop_channel_yn=${stop_channel_yn:-n}
-        if [[ $stop_channel_yn == [Yy] ]]
+        echo
+        yn_options=( '否' '是' )
+        inquirer list_input "检测到频道正在运行, 是否现在关闭" yn_options stop_channel_yn
+        if [[ $stop_channel_yn == "否" ]]
         then
-            StopChannel
-            echo && echo
-        else
-            Println "已取消...\n" && exit 1
+            Println "已取消\n..."
+            exit 1
         fi
+        StopChannel
+        echo && echo
     fi
 
     SetStreamLink
@@ -9040,7 +9040,7 @@ ScheduleHbozw()
         chnl_name=${chnl#*:}
         if [ "$chnl_id" == "hbo" ] 
         then
-            SCHEDULE_LINK="https://hboasia.com/HBO/zh-cn/ajax/home_schedule?date=$today&channel=$chnl_id&feed=satellite"
+            SCHEDULE_LINK="https://hboasia.com/HBO/zh-cn/ajax/home_schedule?date=$today&channel=hbo&feed=cn"
         elif [ "$chnl_id" == "hboasia" ] 
         then
             SCHEDULE_LINK="https://hboasia.com/HBO/zh-cn/ajax/home_schedule?date=$today&channel=hbo&feed=satellite"
@@ -9049,7 +9049,7 @@ ScheduleHbozw()
             SCHEDULE_LINK="https://hboasia.com/HBO/zh-cn/ajax/home_schedule?date=$today&channel=red&feed=satellite"
         elif [ "$chnl_id" == "cinemax" ] 
         then
-            SCHEDULE_LINK="https://hboasia.com/HBO/zh-cn/ajax/home_schedule?date=$today&channel=$chnl_id&feed=satellite"
+            SCHEDULE_LINK="https://hboasia.com/HBO/zh-cn/ajax/home_schedule?date=$today&channel=cinemax&feed=satellite"
         else
             SCHEDULE_LINK="https://hboasia.com/HBO/zh-tw/ajax/home_schedule?date=$today&channel=$chnl_id&feed=satellite"
         fi
@@ -11599,47 +11599,47 @@ TsImg()
 
 InstallImgcat()
 {
-    Println "$error 缺少 imgcat ,是否现在安装? [y/N]"
-    read -p "(默认: 取消): " imgcat_install_yn
-    imgcat_install_yn=${imgcat_install_yn:-N}
-    if [[ $imgcat_install_yn == [Yy] ]] 
+    echo
+    yn_options=( '是' '否' )
+    inquirer list_input "缺少 imgcat ,是否现在安装" yn_options imgcat_install_yn
+    if [[ $imgcat_install_yn == "否" ]]
     then
-        Progress &
-        progress_pid=$!
-        trap '
-            kill $progress_pid 2> /dev/null
-        ' EXIT
-        CheckRelease lite
-        if [ "$release" == "rpm" ] 
-        then
-            yum -y install gcc gcc-c++ make ncurses-devel autoconf >/dev/null 2>&1
-            echo -n "...50%..."
-        else
-            apt-get -y install debconf-utils libncurses5-dev autotools-dev autoconf >/dev/null 2>&1
-            echo '* libraries/restart-without-asking boolean true' | debconf-set-selections
-            apt-get -y install software-properties-common pkg-config build-essential >/dev/null 2>&1
-            echo -n "...50%..."
-        fi
-
-        cd ~
-
-        if [ ! -e "./imgcat-master" ] 
-        then
-            wget --timeout=10 --tries=3 --no-check-certificate "$FFMPEG_MIRROR_LINK/imgcat.zip" -qO "imgcat.zip"
-            unzip "imgcat.zip" >/dev/null 2>&1
-        fi
-
-        cd "./imgcat-master"
-        autoconf >/dev/null 2>&1
-        ./configure >/dev/null 2>&1
-        make >/dev/null 2>&1
-        make install >/dev/null 2>&1
-        kill $progress_pid
-        trap - EXIT
-        echo -n "...100%" && Println "$info imgcat 安装完成"
-    else
-        Println "已取消...\n" && exit 1
+        Println "已取消\n..."
+        exit 1
     fi
+    Progress &
+    progress_pid=$!
+    trap '
+        kill $progress_pid 2> /dev/null
+    ' EXIT
+    CheckRelease lite
+    if [ "$release" == "rpm" ] 
+    then
+        yum -y install gcc gcc-c++ make ncurses-devel autoconf >/dev/null 2>&1
+        echo -n "...50%..."
+    else
+        apt-get -y install debconf-utils libncurses5-dev autotools-dev autoconf >/dev/null 2>&1
+        echo '* libraries/restart-without-asking boolean true' | debconf-set-selections
+        apt-get -y install software-properties-common pkg-config build-essential >/dev/null 2>&1
+        echo -n "...50%..."
+    fi
+
+    cd ~
+
+    if [ ! -e "./imgcat-master" ] 
+    then
+        wget --timeout=10 --tries=3 --no-check-certificate "$FFMPEG_MIRROR_LINK/imgcat.zip" -qO "imgcat.zip"
+        unzip "imgcat.zip" >/dev/null 2>&1
+    fi
+
+    cd "./imgcat-master"
+    autoconf >/dev/null 2>&1
+    ./configure >/dev/null 2>&1
+    make >/dev/null 2>&1
+    make install >/dev/null 2>&1
+    kill $progress_pid
+    trap - EXIT
+    echo -n "...100%" && Println "$info imgcat 安装完成"
 }
 
 TsRegister()
@@ -11718,16 +11718,15 @@ TsRegister()
 
                         if [ "${reg_array[ret]}" -eq 0 ] 
                         then
-                            Println "$info 注册成功！"
-                            Println "$info 是否登录账号? [y/N]"
-                            read -p "(默认: N): " login_yn
-                            login_yn=${login_yn:-N}
-                            if [[ $login_yn == [Yy] ]]
+                            echo
+                            yn_options=( '否' '是' )
+                            inquirer list_input "注册成功 ,是否登录账号" yn_options login_yn
+                            if [[ $login_yn == "否" ]]
                             then
-                                TsLogin
-                            else
-                                Println "已取消...\n" && exit 1
+                                Println "已取消\n..."
+                                exit 1
                             fi
+                            TsLogin
                         else
                             Println "$error 注册失败！"
                             printf '%s\n' "${reg_array[@]}"
@@ -11757,16 +11756,15 @@ TsRegister()
 
         if [ "${reg_array[ret]}" -eq 0 ] 
         then
-            Println "$info 注册成功！"
-            Println "$info 是否登录账号? [y/N]"
-            read -p "(默认: N): " login_yn
-            login_yn=${login_yn:-N}
-            if [[ $login_yn == [Yy] ]]
+            echo
+            yn_options=( '否' '是' )
+            inquirer list_input "注册成功 ,是否登录账号" yn_options login_yn
+            if [[ $login_yn == "否" ]]
             then
-                TsLogin
-            else
-                Println "已取消...\n" && exit 1
+                Println "已取消\n..."
+                exit 1
             fi
+            TsLogin
         else
             Println "$error 发生错误"
             printf '%s\n' "${sms_array[@]}"
@@ -11826,15 +11824,15 @@ TsLogin()
     then
         Println "$error 账号错误"
         printf '%s\n' "${login_array[@]}"
-        Println "$info 是否注册账号? [y/N]"
-        read -p "(默认: N): " register_yn
-        register_yn=${register_yn:-N}
-        if [[ $register_yn == [Yy] ]]
+        echo
+        yn_options=( '否' '是' )
+        inquirer list_input "是否注册账号" yn_options register_yn
+        if [[ $register_yn == "否" ]]
         then
-            TsRegister
-        else
-            Println "已取消...\n" && exit 1
+            Println "已取消\n..."
+            exit 1
         fi
+        TsRegister
     else
         while :; do
             Println "$info 输入需要转换的频道号码: "
@@ -11887,16 +11885,16 @@ TsLogin()
         stream_link=$($JQ_FILE -r --arg a "programid=$programid" '[.channels[].stream_link] | map(select(test($a)))[0]' "$CHANNELS_FILE")
         if [ "${stream_link:-}" != null ]
         then
-            Println "$info 检测到此频道原有链接, 是否替换成新的ts链接? [Y/n]"
-            read -p "(默认: Y): " change_yn
-            change_yn=${change_yn:-Y}
-            if [[ $change_yn == [Yy] ]]
+            echo
+            yn_options=( '是' '否' )
+            inquirer list_input "检测到此频道原有链接, 是否替换成新的ts链接" yn_options change_yn
+            if [[ $change_yn == "否" ]]
             then
-                JQ update "$CHANNELS_FILE" '(.channels[]|select(.stream_link=="'"$stream_link"'")|.stream_link)="'"$TS_LINK"'"'
-                Println "$info 修改成功 !\n"
-            else
-                Println "已取消...\n" && exit 1
+                Println "已取消\n..."
+                exit 1
             fi
+            JQ update "$CHANNELS_FILE" '(.channels[]|select(.stream_link=="'"$stream_link"'")|.stream_link)="'"$TS_LINK"'"'
+            Println "$info 修改成功 !\n"
         fi
     fi
 }
@@ -11906,19 +11904,18 @@ TsMenu()
     GetDefault
 
     user_agent="iPhone; CPU iPhone OS 13_6 like Mac OS X"
-
-    Println "$info 是否使用默认频道文件? 默认链接: $DEFAULT_CHANNELS_LINK [Y/n]"
-    read -p "(默认: Y): " use_default_channels_yn
-    use_default_channels_yn=${use_default_channels_yn:-Y}
-    if [[ $use_default_channels_yn == [Yy] ]]
+    echo
+    yn_options=( '是' '否' )
+    inquirer list_input "是否使用默认频道文件: $DEFAULT_CHANNELS_LINK" yn_options use_default_channels_yn
+    if [[ $use_default_channels_yn == "是" ]]
     then
         TS_CHANNELS_LINK=$DEFAULT_CHANNELS_LINK
     else
         if [ -n "$d_sync_file" ] && [[ -n $($JQ_FILE '.data[] | select(.reg_url != null)' "${d_sync_file%% *}") ]] 
         then
-            Println "$info 是否使用本地频道文件? 本地路径: ${d_sync_file%% *} [Y/n]"
-            read -p "(默认: Y): " use_local_channels_yn
-            use_local_channels_yn=${use_local_channels_yn:-Y}
+            echo
+            yn_options=( '是' '否' )
+            inquirer list_input "是否使用本地频道文件? 本地路径: ${d_sync_file%% *}" yn_options use_local_channels_yn
             if [[ $use_local_channels_yn == [Yy] ]] 
             then
                 TS_CHANNELS_FILE=${d_sync_file%% *}
@@ -12023,10 +12020,15 @@ TsMenu()
 
 AntiLeech()
 {
-    Println "是否开启防盗链? [y/N]"
-    read -p "(默认: ${d_anti_leech}): " anti_leech_yn
-    anti_leech_yn=${anti_leech_yn:-$d_anti_leech}
-    if [[ $anti_leech_yn == [Yy] ]] 
+    echo
+    if [[ $d_anti_leech == "是" ]] 
+    then
+        yn_options=( '是' '否' )
+    else
+        yn_options=( '否' '是' )
+    fi
+    inquirer list_input "是否开启防盗链" yn_options anti_leech_yn
+    if [[ $anti_leech_yn == "是" ]]
     then
         anti_leech_yn="yes"
 
@@ -12051,10 +12053,10 @@ AntiLeech()
 
         if [ "$anti_leech_restart_nums" -gt 0 ] 
         then
-            Println "是否下个小时开始随机重启？[y/N]"
-            read -p "(默认: N): " anti_leech_restart_next_hour_yn
-            anti_leech_restart_next_hour_yn=${anti_leech_restart_next_hour_yn:-N}
-            if [[ $anti_leech_restart_next_hour_yn == [Yy] ]] 
+            echo
+            yn_options=( '否' '是' )
+            inquirer list_input "是否下个小时开始随机重启" yn_options anti_leech_restart_next_hour_yn
+            if [[ $anti_leech_restart_next_hour_yn == "是" ]] 
             then
                 printf -v current_hour '%(%-H)T'
                 skip_hour=$current_hour
@@ -27916,7 +27918,18 @@ DeployIbmV2ray()
     ibmcloud login -u "$ibm_user_email" -p "$ibm_user_pass" -r "$ibm_user_region" -g "$ibm_user_resource_group" 
     ibmcloud target -o "$ibm_user_org" -s "$ibm_user_space"
 
-    cd "$IBM_APPS_ROOT/ibm_v2ray/"
+    v2ray_name=$(RandStr)
+    cp -r "$IBM_APPS_ROOT/ibm_v2ray" "$IBM_APPS_ROOT/ibm_$v2ray_name"
+
+    cd "$IBM_APPS_ROOT/ibm_$v2ray_name/"
+    mv v2ray "$v2ray_name"
+    ./v2ctl config config.json > "$v2ray_name.pb"
+    tar zcf "$v2ray_name.tar.gz" "$v2ray_name" "$v2ray_name.pb"
+    rm -f config.json
+    rm -f "$v2ray_name"
+    rm -f "$v2ray_name.pb"
+    rm -f v2ctl
+
     ibmcloud cf create-app-manifest "$ibm_cf_app_name"
 
     routes=""
@@ -27944,11 +27957,14 @@ DeployIbmV2ray()
     echo -e "---
 applications:
 - name: $ibm_cf_app_name
-  command: ./v2ray -config ./config.json
+  command:
+    tar xzf $v2ray_name.tar.gz &&
+    { ./$v2ray_name -config ./$v2ray_name.pb -format=pb & } &&
+    sleep 5 &&
+    rm ./$v2ray_name.pb
   disk_quota: $disk_quota
   instances: ${instances:-1}
   memory: $memory
-$routes
   stack: $stack
   buildpacks:
     - go_buildpack
@@ -27963,6 +27979,8 @@ func main() {
 }
 ' > "main.go"
     ibmcloud cf push -f "${ibm_cf_app_name}_manifest.yml"
+    cd ..
+    rm -rf "$IBM_APPS_ROOT/ibm_$v2ray_name"
 }
 
 IbmV2rayMenu()
